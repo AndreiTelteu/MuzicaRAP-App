@@ -5,9 +5,9 @@ import {
     ScrollView,
     View,
     Text,
+    Image,
     ImageBackground,
     TouchableOpacity,
-    Animated,
 } from 'react-native';
 import TrackPlayer from 'react-native-track-player';
 import NchanSubscriber from 'react-native-nchan';
@@ -28,10 +28,12 @@ class Home extends React.Component {
                 genre: 'HipHop',
                 artwork: 'https://stream.muzicarap.ro/static/img/generic_song.jpg',
             },
+            np: {},
             updated: null,
         }
         this.wsMessage = this.wsMessage.bind(this)
         this.playPause = this.playPause.bind(this)
+        this.updateProgress = this.updateProgress.bind(this)
     }
     
     componentDidMount() {
@@ -71,6 +73,10 @@ class Home extends React.Component {
         const sub = new NchanSubscriber('https://stream.muzicarap.ro/api/live/nowplaying/MuzicaRAP', { subscriber: 'websocket' })
         sub.on('message', this.wsMessage)
         sub.start()
+        this.progressUpdateInterval = setInterval(this.updateProgress, 1000)
+    }
+    componentWillUnmount() {
+        clearInterval(this.progressUpdateInterval)
     }
     
     wsMessage(message, message_metadata) {
@@ -84,6 +90,7 @@ class Home extends React.Component {
         if (this.state.track.artwork != newArtwork) {
             this.state.track.artwork = newArtwork
         }
+        this.state.np = data.now_playing
         this.setState({ updated: Date.now() })
         
         TrackPlayer.updateMetadataForTrack(this.state.track.id, {
@@ -117,6 +124,23 @@ class Home extends React.Component {
         }
     }
     
+    progressBarInnerRef = null
+    progressUpdateInterval = null
+    updateProgress() {
+        if (!this.progressBarInnerRef) return;
+        if (!this.state.np) return;
+        if (!this.state.np.elapsed || !this.state.np.duration) return;
+        
+        var np_elapsed = this.state.np.elapsed;
+        var np_total = this.state.np.duration;
+        if (np_elapsed < np_total) {
+            this.state.np.elapsed = np_elapsed + 1;
+        }
+        
+        let progress = (this.state.np.elapsed / this.state.np.duration * 100).toFixed(2);
+        this.progressBarInnerRef.setNativeProps({ style: [styles.progressInner, {width: progress+'%'}] });
+    }
+    
     render() {
         return (
             <ScrollView
@@ -128,17 +152,28 @@ class Home extends React.Component {
                     style={styles.backgroundImageContainer}
                     imageStyle={styles.backgroundImage}
                     blurRadius={0.6}
-                    opacity={0.7}
+                    opacity={0.2}
                 >
+                    {/* <View style={styles.trackInfo}>
+                    </View> */}
+                    <View style={styles.partArtwork}>
+                        <Image
+                            source={{uri: this.state.track.artwork}}
+                            style={styles.trackArtwork}
+                        ></Image>
+                        <View style={styles.progress}>
+                            <View style={styles.progressInner} ref={(ref) => this.progressBarInnerRef = ref}></View>
+                        </View>
+                    </View>
                     <View style={styles.trackInfo}>
-                        <Text>{this.state.track.title}</Text>
-                        <Text>{this.state.track.artist}</Text>
-                        <Text>{this.state.track.album}</Text>
+                        <Text style={styles.trackTitle}>{this.state.track.title}</Text>
+                        <Text style={styles.trackArtist}>{this.state.track.artist}</Text>
+                        <Text style={styles.trackAlbum}>{this.state.track.album}</Text>
                     </View>
                     <View style={styles.controls}>
                         <TouchableOpacity onPress={() => this.playPause()} style={{width: 100, height: 100}}>
                             <Svg width="100%" height="100%" viewBox="0 0 36 36" >
-                                <Path ref={(ref) => this.playButtonPathRef = ref} d="M11,10 L17,10 17,26 11,26 M20,10 L26,10 26,26 20,26" />
+                                <Path ref={(ref) => this.playButtonPathRef = ref} fill="#fff" d="M11,10 L17,10 17,26 11,26 M20,10 L26,10 26,26 20,26" />
                             </Svg>
                         </TouchableOpacity>
                     </View>
@@ -152,7 +187,7 @@ class Home extends React.Component {
 const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
-        backgroundColor: '#303030',
+        backgroundColor: '#000',
     },
     scrollViewContainer: {
         flexGrow: 1,
@@ -167,13 +202,47 @@ const styles = StyleSheet.create({
     },
     backgroundImage: {
     },
-    trackInfo: {
-        alignContent: 'center',
+    partArtwork: {
         alignItems: 'center',
-        justifyContent: 'center',
+        position: 'relative',
+    },
+    trackArtwork: {
+        width: '80%',
+        aspectRatio: 1/1,
+        marginTop: 40,
+    },
+    progress: {
+        width: '80%',
+        position: 'absolute',
+        bottom: 0,
+        backgroundColor: 'rgba(3, 169, 244, 0.4)',
+    },
+    progressInner: {
+        // width: '0%',
+        height: 5,
+        backgroundColor: 'rgba(3, 169, 244, 1)',
+    },
+    trackInfo: {
+        alignItems: 'center',
+    },
+    trackTitle: {
+        color: '#fff',
+        fontFamily: "Alata",
+        fontSize: 32,
+    },
+    trackArtist: {
+        color: '#fff',
+        fontFamily: "Alata",
+        fontSize: 26,
+    },
+    trackAlbum: {
+        color: '#fff',
+        fontFamily: "Alata",
+        fontSize: 20,
     },
     controls: {
         alignItems: 'center',
+        marginBottom: 20
     },
 });
 

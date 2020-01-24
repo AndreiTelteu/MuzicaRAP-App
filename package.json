@@ -27,6 +27,11 @@
     "metro-react-native-babel-preset": "^0.56.4",
     "react-test-renderer": "16.9.0"
   },
+  "rnpm": {
+    "assets": [
+      "./assets/fonts/"
+    ]
+  },
   "jest": {
     "preset": "react-native"
   }
