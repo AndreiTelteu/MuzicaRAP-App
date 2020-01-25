@@ -8,7 +8,6 @@ import {
     StatusBar,
 } from 'react-native';
 import Home from './src/Home'
-import TrackPlayer from 'react-native-track-player';
 
 console.disableYellowBox = true;
 
@@ -16,7 +15,7 @@ const App: () => React$Node = () => {
     return (
         <>
             <StatusBar barStyle="dark-content" />
-            <SafeAreaView style={{flex: 1}}>
+            <SafeAreaView style={{flex: 1, position: 'relative'}}>
                 <ScrollView
                     contentInsetAdjustmentBehavior="automatic"
                     style={styles.scrollView}
