@@ -224,21 +224,25 @@ const styles = StyleSheet.create({
     },
     trackInfo: {
         alignItems: 'center',
+        textAlign: 'center',
     },
     trackTitle: {
         color: '#fff',
         fontFamily: "Alata",
         fontSize: 32,
+        textAlign: 'center',
     },
     trackArtist: {
         color: '#fff',
         fontFamily: "Alata",
         fontSize: 26,
+        textAlign: 'center',
     },
     trackAlbum: {
         color: '#fff',
         fontFamily: "Alata",
         fontSize: 20,
+        textAlign: 'center',
     },
     controls: {
         alignItems: 'center',
