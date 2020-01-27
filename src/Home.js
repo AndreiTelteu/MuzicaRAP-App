@@ -10,7 +10,7 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import TrackPlayer from 'react-native-track-player';
-import NchanSubscriber from 'react-native-nchan';
+import NchanSubscriber from '../NchanSubscriber';
 import Svg, { Path } from 'react-native-svg';
 
 class Home extends React.Component {
